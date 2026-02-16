@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.openclassroom.joiefull"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.openclassroom.joiefull"
