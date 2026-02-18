@@ -1,4 +1,4 @@
-package com.openclassroom.joiefull
+package com.openclassroom.joiefull.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -19,8 +19,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.openclassroom.joiefull.ui.screens.Screen
 import com.openclassroom.joiefull.ui.screens.SplashScreen
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
