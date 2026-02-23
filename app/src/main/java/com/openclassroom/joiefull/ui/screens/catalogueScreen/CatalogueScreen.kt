@@ -1,4 +1,4 @@
-package com.openclassroom.joiefull.ui.screens
+package com.openclassroom.joiefull.ui.screens.catalogueScreen
 
 
 import androidx.compose.foundation.background
@@ -23,100 +23,41 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.openclassroom.joiefull.domain.Product
 import com.openclassroom.joiefull.ui.theme.JoiefullTheme
 import com.openclassroom.joiefull.ui.theme.Orange
 
-val listProduct = listOf(
-    Product(
-        id = 0,
-        pictureUrl = "https://raw.githubusercontent.com/OpenClassrooms-Student-Center/D-velopper-une-interface-accessible-en-Jetpack-Compose/main/img/accessories/1.jpg",
-        description = "Sac à main orange posé sur une poignée de porte",
-        name = "Sac à main noir",
-        category = "ACCESSORIES",
-        likes = 506,
-        currentPrice = 69.99,
-        originalPrice = 120.99,
-        rate = 4.5
-    ),
-    Product(
-        id = 1,
-        pictureUrl = "https://raw.githubusercontent.com/OpenClassrooms-Student-Center/D-velopper-une-interface-accessible-en-Jetpack-Compose/main/img/accessories/1.jpg",
-        description = "Sac à main orange posé sur une poignée de porte",
-        name = "Pantalon",
-        category = "BAS",
-        likes = 6,
-        currentPrice = 69.99,
-        originalPrice = 120.99,
-        rate = 4.5
-    ),
-    Product(
-        id = 2,
-        pictureUrl = "https://raw.githubusercontent.com/OpenClassrooms-Student-Center/D-velopper-une-interface-accessible-en-Jetpack-Compose/main/img/accessories/1.jpg",
-        description = "Sac à main orange posé sur une poignée de porte",
-        name = "T-shirt bleu",
-        category = "HAUTS",
-        likes = 156,
-        currentPrice = 9.99,
-        originalPrice = 20.99,
-        rate = 4.5
-    ),
-    Product(
-        id = 3,
-        pictureUrl = "https://raw.githubusercontent.com/OpenClassrooms-Student-Center/D-velopper-une-interface-accessible-en-Jetpack-Compose/main/img/accessories/1.jpg",
-        description = "Sac à main orange posé sur une poignée de porte",
-        name = "Sac à main orange",
-        category = "ACCESSORIES",
-        likes = 56,
-        currentPrice = 6.99,
-        originalPrice = 12.99,
-        rate = 4.5
-    ),
-    Product(
-        id = 4,
-        pictureUrl = "https://raw.githubusercontent.com/OpenClassrooms-Student-Center/D-velopper-une-interface-accessible-en-Jetpack-Compose/main/img/accessories/1.jpg",
-        description = "Sac à main orange posé sur une poignée de porte",
-        name = "Collier",
-        category = "ACCESSORIES",
-        likes = 5,
-        currentPrice = 9.99,
-        originalPrice = 10.99,
-        rate = 4.5
-    ),
-    Product(
-        id = 5,
-        pictureUrl = "https://raw.githubusercontent.com/OpenClassrooms-Student-Center/D-velopper-une-interface-accessible-en-Jetpack-Compose/main/img/accessories/1.jpg",
-        description = "Sac à main orange posé sur une poignée de porte",
-        name = "T-Shirt",
-        category = "HAUTS",
-        likes = 15,
-        currentPrice = 609.99,
-        originalPrice = 1200.99,
-        rate = 4.5
-    ),
-)
+
 
 
 @Composable
-fun CatalogueScreen(modifier: Modifier = Modifier, groupedProduct: Map<String, List<Product>>) {
+fun CatalogueScreen(navController: NavController, viewModel: CatalogueViewModel = hiltViewModel()) {
 
-    LazyColumn (modifier = modifier
+    val catalogue by viewModel.catalogue.collectAsStateWithLifecycle()
+
+    LazyColumn (modifier = Modifier
+        .fillMaxSize()
         .statusBarsPadding()
         .navigationBarsPadding()
         .padding(start = 16.dp)
     ) {
-        groupedProduct.forEach { (category, products) ->
+        catalogue.forEach { (category, products) ->
             item {
                 Text(
                     text = category,
@@ -147,15 +88,21 @@ fun ProductCard(modifier: Modifier = Modifier, product: Product) {
         Box(
             modifier = Modifier
                 .size(198.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .padding(10.dp)
         ) {
             AsyncImage(
                 model = product.pictureUrl,
                 contentDescription = product.description,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.Crop,
             )
-            LikesDisplay(modifier = Modifier.align(Alignment.BottomEnd), likes = product.likes)
+
+            LikesDisplay(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(11.dp),
+                likes = product.likes)
         }
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -167,7 +114,7 @@ fun ProductCard(modifier: Modifier = Modifier, product: Product) {
             Text(
                 text = product.name, fontSize = 14.sp, fontWeight = SemiBold
             )
-            RatingItem(rating = product.rate!!)
+            RatingItem(rating = product.rate ?: 0.0)
         }
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -230,14 +177,6 @@ fun RatingItem(rating: Double) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun CatalogueScreenPreview() {
-    val productByCategory = listProduct.groupBy { it.category } // A basculer dans le ViewModel
-    JoiefullTheme {
-        CatalogueScreen(groupedProduct = productByCategory)
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
