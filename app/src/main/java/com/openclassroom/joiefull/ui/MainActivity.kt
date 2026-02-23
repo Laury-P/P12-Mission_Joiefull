@@ -6,9 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.openclassroom.joiefull.ui.theme.JoiefullTheme
@@ -17,8 +15,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.openclassroom.joiefull.ui.screens.catalogueScreen.CatalogueScreen
 import com.openclassroom.joiefull.ui.screens.Screen
-import com.openclassroom.joiefull.ui.screens.SplashScreen
+import com.openclassroom.joiefull.ui.screens.splashScreen.SplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -49,7 +48,10 @@ fun JoiefullNavHost(navController: NavHostController) {
         navController = navController,
         startDestination = Screen.SplashScreen.route) {
         composable(route = Screen.SplashScreen.route) {
-            SplashScreen(modifier = Modifier.fillMaxSize())
+            SplashScreen(navController = navController)
+        }
+        composable(route = Screen.CatalogueScreen.route) {
+            CatalogueScreen(navController = navController)
         }
     }
 }
