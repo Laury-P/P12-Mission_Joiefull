@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CatalogueViewModel @Inject constructor(
-    private val repository: CatalogueRepository
+    repository: CatalogueRepository
 ) : ViewModel() {
 
     val catalogue: StateFlow<Map<String, List<Product>>> = repository.getCatalogue()
@@ -26,8 +26,8 @@ class CatalogueViewModel @Inject constructor(
             emptyMap()
         )
 
-
-
-
+    fun onLikeClick(product: Product) {
+        //TODO
+    }
 
 }

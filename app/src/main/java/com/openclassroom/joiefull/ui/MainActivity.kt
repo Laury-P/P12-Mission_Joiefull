@@ -15,9 +15,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.openclassroom.joiefull.ui.screens.catalogueScreen.CatalogueScreen
-import com.openclassroom.joiefull.ui.screens.Screen
+import com.openclassroom.joiefull.ui.screens.CatalogueContainer
+import com.openclassroom.joiefull.ui.screens.ScreenRoutes
+import com.openclassroom.joiefull.ui.screens.detailScreen.DetailScreen
 import com.openclassroom.joiefull.ui.screens.splashScreen.SplashScreen
+import com.openclassroom.joiefull.util.DetermineIsTablet
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -40,18 +42,33 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
 }
 
 @Composable
 fun JoiefullNavHost(navController: NavHostController) {
+    val isTablet = DetermineIsTablet()
+
     NavHost(
         navController = navController,
-        startDestination = Screen.SplashScreen.route) {
-        composable(route = Screen.SplashScreen.route) {
+        startDestination = ScreenRoutes.SplashScreen.route
+    ) {
+        composable(route = ScreenRoutes.SplashScreen.route) {
             SplashScreen(navController = navController)
         }
-        composable(route = Screen.CatalogueScreen.route) {
-            CatalogueScreen(navController = navController)
+        composable(route = ScreenRoutes.CatalogueScreen.route) {
+           CatalogueContainer(navController = navController, isTablet = isTablet)
+        }
+
+        if (!isTablet){
+            composable(
+                route = ScreenRoutes.DetailScreen.route,
+                arguments = ScreenRoutes.DetailScreen.navArguments
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getInt("productId") ?: return@composable
+                DetailScreen(productId = productId)
+            }
         }
     }
 }
