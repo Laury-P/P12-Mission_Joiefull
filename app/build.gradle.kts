@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt.android) //Pour Hilt
     alias(libs.plugins.ksp)
-
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -33,11 +33,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -64,6 +64,7 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.preview)
+    implementation(libs.androidx.ui.text)
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
     implementation(libs.activity.compose)
@@ -85,9 +86,9 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
 
-    // IMAGES (Glide)
-    implementation(libs.glide)
-    annotationProcessor(libs.glide.compiler)
+    // IMAGES (Coil)
+    implementation(libs.coil.compose)
+
 
     // TESTS
     testImplementation(libs.junit)

@@ -7,4 +7,6 @@ interface CatalogueApi {
 
     @GET("clothes.json")
     suspend fun getCatalogue(): List<CatalogueResponse>
+
+
 }
