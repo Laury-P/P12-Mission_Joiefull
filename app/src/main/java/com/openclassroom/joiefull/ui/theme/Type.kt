@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.sp
 val PhoneTypography = Typography(
     bodyMedium = TextStyle(fontSize = 14.sp,),
     bodyLarge = TextStyle(fontSize = 16.sp,),
+    labelSmall = TextStyle(fontSize = 14.sp,),
     labelLarge = TextStyle(fontSize = 14.sp,),
     titleMedium = TextStyle(fontSize = 18.sp,),
     headlineMedium = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.SemiBold),
@@ -17,6 +18,7 @@ val PhoneTypography = Typography(
 val TabletTypography = Typography(
     bodyMedium = TextStyle(fontSize = 18.sp,),
     bodyLarge = TextStyle(fontSize = 20.sp,),
+    labelSmall = TextStyle(fontSize = 14.sp,),
     labelLarge = TextStyle(fontSize = 18.sp,),
     titleMedium = TextStyle(fontSize = 22.sp,),
     headlineMedium = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.SemiBold),
