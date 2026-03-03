@@ -1,5 +1,6 @@
 package com.openclassroom.joiefull.ui.screens.detailScreen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -39,13 +40,20 @@ fun DetailScreen(
     modifier: Modifier = Modifier,
     productId: Int,
     viewModel: DetailViewModel = hiltViewModel(),
-    navController: NavController, isTablet: Boolean) {
+    navController: NavController,
+    isTablet: Boolean) {
 
     val product = viewModel.getProduct(productId)
 
-    if (product == null) // navController.popBackStack() //TODO: gerer erreur de nav si ecran compact
-    else DetailContent(modifier = modifier, product = product, user = User(0, "", "", null), comments = null, isTablet = isTablet)
-
+    if (product == null) {
+        if (!isTablet) navController.popBackStack()
+    } else DetailContent(
+        modifier = modifier,
+        product = product,
+        user = User(0, "", "", null),
+        comments = null,
+        isTablet = isTablet,
+        goBackClick = { navController.popBackStack() })
 
 }
 
@@ -56,7 +64,8 @@ fun DetailContent(
     comments: List<Comment>?,
     modifier: Modifier = Modifier,
     onLikeClick: (Product) -> Unit = {},
-    isTablet: Boolean
+    isTablet: Boolean,
+    goBackClick: () -> Unit = {}
 ) {
     LazyColumn(
         modifier
@@ -65,7 +74,7 @@ fun DetailContent(
             .navigationBarsPadding()
     ) {
         item {
-            ProductDetail(product, onLikeClick, isTablet = isTablet)
+            ProductDetail(product, onLikeClick, isTablet = isTablet, goBackClick = goBackClick)
         }
         item {
             LeaveComment(product, user = user)
@@ -79,7 +88,7 @@ fun DetailContent(
 }
 
 @Composable
-fun ProductDetail(product: Product, onLikeClick: (Product) -> Unit, isTablet: Boolean) {
+fun ProductDetail(product: Product, onLikeClick: (Product) -> Unit, isTablet: Boolean, goBackClick: () -> Unit) {
     Column(modifier = Modifier.padding(16.dp)) {
         Box {
             val ratio = if (isTablet) 1f else 0.75f
@@ -101,6 +110,7 @@ fun ProductDetail(product: Product, onLikeClick: (Product) -> Unit, isTablet: Bo
                     Modifier
                         .align(Alignment.TopStart)
                         .padding(17.dp)
+                        .clickable(true, onClick = goBackClick, onClickLabel = "Retour à la liste des produits")
                 )
             }
             Icon(
