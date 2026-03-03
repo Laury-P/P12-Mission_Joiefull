@@ -1,4 +1,4 @@
-package com.openclassroom.joiefull.ui.Composable
+package com.openclassroom.joiefull.ui.composable_item
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,15 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openclassroom.joiefull.ui.theme.Orange
 
 @Composable
-fun RatingItem(rating: Double) {
+fun RateDisplay(rating: Double, textStyle: TextStyle) {
     Row {
-        val fontSize = 14.sp
-        val iconSize = with(LocalDensity.current) { fontSize.toDp() }
+        val iconSize = with(LocalDensity.current) { textStyle.fontSize.toDp() }
 
         Icon(
             imageVector = Icons.Filled.Star,
@@ -31,6 +32,8 @@ fun RatingItem(rating: Double) {
                 .align(Alignment.CenterVertically)
         )
         Spacer(modifier = Modifier.width(3.dp))
-        Text(text = rating.toString(), fontSize = fontSize)
+        Text(
+            text = rating.toString(),
+            style = textStyle,)
     }
 }

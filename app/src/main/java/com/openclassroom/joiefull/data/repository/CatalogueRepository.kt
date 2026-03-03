@@ -27,7 +27,6 @@ class CatalogueRepository @Inject constructor(private val catalogueApi: Catalogu
 
     fun getCatalogue() : Flow<List<Product>> = _catalogueFlow.asStateFlow()
 
-
-
+    fun getProduct(productId: Int) : Product? = _catalogueFlow.value.find { it.id == productId }
 
 }

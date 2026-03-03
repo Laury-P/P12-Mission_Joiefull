@@ -1,4 +1,4 @@
-package com.openclassroom.joiefull.ui.Composable
+package com.openclassroom.joiefull.ui.composable_item
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,12 +20,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LikesDisplay(modifier: Modifier = Modifier, likes: Int, onLikeClick: () -> Unit = {}) {
+fun LikesDisplay(modifier: Modifier = Modifier, likes: Int, onLikeClick: () -> Unit = {}, textStyle: TextStyle) {
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
@@ -34,8 +35,8 @@ fun LikesDisplay(modifier: Modifier = Modifier, likes: Int, onLikeClick: () -> U
             .clickable(enabled = true, onClick = { onLikeClick() })
             .semantics{hideFromAccessibility()},
     ) {
-        val fontSize = 14.sp
-        val iconSize = with(LocalDensity.current) { fontSize.toDp() }
+
+        val iconSize = with(LocalDensity.current) { textStyle.fontSize.toDp() }
 
         Icon(
             imageVector = Icons.Outlined.FavoriteBorder,
@@ -46,6 +47,9 @@ fun LikesDisplay(modifier: Modifier = Modifier, likes: Int, onLikeClick: () -> U
 
         )
         Spacer(modifier = Modifier.width(3.dp))
-        Text(text = likes.toString(), fontSize = fontSize, fontWeight = SemiBold)
+        Text(
+            text = likes.toString(),
+            style = textStyle,
+            fontWeight = SemiBold)
     }
 }

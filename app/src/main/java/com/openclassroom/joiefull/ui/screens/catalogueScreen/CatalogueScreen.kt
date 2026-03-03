@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,17 +29,15 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.openclassroom.joiefull.domain.Product
-import com.openclassroom.joiefull.ui.Composable.DetailRows
-import com.openclassroom.joiefull.ui.Composable.LikesDisplay
+import com.openclassroom.joiefull.ui.composable_item.DetailRows
+import com.openclassroom.joiefull.ui.composable_item.LikesDisplay
 import com.openclassroom.joiefull.ui.theme.JoiefullTheme
 
 
@@ -63,8 +62,7 @@ fun CatalogueScreen(
             item {
                 Text(
                     text = category,
-                    fontSize = 22.sp,
-                    fontWeight = SemiBold,
+                    style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier
                         .padding(8.dp)
                         .semantics{heading()}
@@ -139,10 +137,11 @@ fun ProductCard(modifier: Modifier = Modifier, product: Product, onProductClick:
                     .align(Alignment.BottomEnd)
                     .padding(11.dp),
                 likes = product.likes,
-                onLikeClick = { onLikeClick(product) }
+                onLikeClick = { onLikeClick(product) },
+                textStyle = MaterialTheme.typography.labelSmall
             )
         }
-        DetailRows(product)
+        DetailRows(product, modifier = Modifier.padding(horizontal = 8.dp), textStyle = MaterialTheme.typography.labelLarge)
 
     }
 }

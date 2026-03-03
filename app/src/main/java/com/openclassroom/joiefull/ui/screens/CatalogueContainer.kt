@@ -29,7 +29,7 @@ fun CatalogueContainer(
     var selectedProduct by remember { mutableStateOf<Product?>(null) }
 
     if (isTablet) {
-        Row {
+        Row(Modifier.fillMaxSize()) {
             CatalogueScreen(
                 navController = navController,
                 onProductClick = { product -> selectedProduct = product },
@@ -45,7 +45,11 @@ fun CatalogueContainer(
                     modifier = Modifier
                         .weight(0.4f)
                         .padding(end = 32.dp),
-                    productId = product.id)
+                    productId = product.id,
+                    navController = navController,
+                    isTablet = isTablet
+                )
+
             } ?: DetailPlaceholder(modifier = Modifier.weight(0.4f).padding(end = 32.dp))
 
         }

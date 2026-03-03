@@ -10,6 +10,8 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -42,6 +44,7 @@ fun JoiefullTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
+    isTablet: Boolean = LocalConfiguration.current.screenWidthDp >= 600,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -69,9 +72,13 @@ fun JoiefullTheme(
         }
     }
 
+    val typography = remember(isTablet) {
+        if (isTablet) TabletTypography else PhoneTypography
+    }
+
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = typography,
         content = content
     )
 }
