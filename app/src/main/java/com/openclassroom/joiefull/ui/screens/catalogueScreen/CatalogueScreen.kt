@@ -137,6 +137,7 @@ fun ProductCard(modifier: Modifier = Modifier, product: Product, onProductClick:
                     .align(Alignment.BottomEnd)
                     .padding(11.dp),
                 likes = product.likes,
+                isProductLikedByUser = product.isLikedByCurrentUser,
                 onLikeClick = { onLikeClick(product) },
                 textStyle = MaterialTheme.typography.labelSmall
             )

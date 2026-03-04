@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -26,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LikesDisplay(modifier: Modifier = Modifier, likes: Int, onLikeClick: () -> Unit = {}, textStyle: TextStyle) {
+fun LikesDisplay(modifier: Modifier = Modifier, likes: Int,isProductLikedByUser: Boolean, onLikeClick: () -> Unit = {}, textStyle: TextStyle) {
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
@@ -39,12 +40,12 @@ fun LikesDisplay(modifier: Modifier = Modifier, likes: Int, onLikeClick: () -> U
         val iconSize = with(LocalDensity.current) { textStyle.fontSize.toDp() }
 
         Icon(
-            imageVector = Icons.Outlined.FavoriteBorder,
+            imageVector = if(isProductLikedByUser) Icons.Filled.Favorite else  Icons.Outlined.FavoriteBorder,
             contentDescription = null,
-            Modifier
+            tint = if (isProductLikedByUser) Color.Red else Color.Black,
+            modifier = Modifier
                 .size(iconSize)
                 .align(Alignment.CenterVertically)
-
         )
         Spacer(modifier = Modifier.width(3.dp))
         Text(

@@ -19,6 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.openclassroom.joiefull.domain.Comment
@@ -43,17 +46,20 @@ fun DetailScreen(
     navController: NavController,
     isTablet: Boolean) {
 
-    val product = viewModel.getProduct(productId)
+    val product by viewModel.getProduct(productId).collectAsStateWithLifecycle()
 
-    if (product == null) {
-        if (!isTablet) navController.popBackStack()
+    val currentProduct = product
+    if (currentProduct == null) {
+        if (!isTablet) LaunchedEffect(Unit) {navController.popBackStack()}
     } else DetailContent(
         modifier = modifier,
-        product = product,
+        product = currentProduct,
         user = User(0, "", "", null),
         comments = null,
         isTablet = isTablet,
-        goBackClick = { navController.popBackStack() })
+        goBackClick = { navController.popBackStack() },
+        onLikeClick = { viewModel.onLikeClick(currentProduct) }
+    )
 
 }
 
@@ -74,7 +80,7 @@ fun DetailContent(
             .navigationBarsPadding()
     ) {
         item {
-            ProductDetail(product, onLikeClick, isTablet = isTablet, goBackClick = goBackClick)
+            ProductDetail(product, onLikeClick = { onLikeClick(product) }, isTablet = isTablet, goBackClick = goBackClick)
         }
         item {
             LeaveComment(product, user = user)
@@ -125,6 +131,7 @@ fun ProductDetail(product: Product, onLikeClick: (Product) -> Unit, isTablet: Bo
                     .align(Alignment.BottomEnd)
                     .padding(11.dp),
                 likes = product.likes,
+                isProductLikedByUser = product.isLikedByCurrentUser,
                 onLikeClick = { onLikeClick(product) },
                 textStyle = MaterialTheme.typography.titleMedium
             )
