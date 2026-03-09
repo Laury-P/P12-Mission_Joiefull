@@ -4,6 +4,7 @@ import com.openclassroom.joiefull.data.remote.api.CatalogueApi
 import com.openclassroom.joiefull.domain.Product
 import javax.inject.Inject
 import com.openclassroom.joiefull.data.mapper.toDomain
+import com.openclassroom.joiefull.domain.Comment
 import com.openclassroom.joiefull.util.DataState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,99 @@ class CatalogueRepository @Inject constructor(private val catalogueApi: Catalogu
     private val _catalogueFlow = MutableStateFlow<List<Product>>(emptyList())
 
     private val likedProductIds = mutableSetOf<Int>(1, 4, 9)
+
+    private val allComments = mutableListOf<Comment>(
+        Comment(
+            1,
+            1,
+            50,
+            "Alice Martin",
+            "https://api.dicebear.com/7.x/avataaars/png?seed=Alice",
+            "Franchement, la qualité est incroyable pour le prix. Je ne regrette pas mon achat !",
+            5
+        ),
+        Comment(
+            2,
+            1,
+            51,
+            "Jean Dupont",
+            "https://api.dicebear.com/7.x/avataaars/png?seed=Jean",
+            "Un peu déçu par la couleur, c'est plus foncé que sur la photo.",
+            3
+        ),
+        Comment(
+            3,
+            4,
+            52,
+            "Chloé Leroy",
+            "https://api.dicebear.com/7.x/avataaars/png?seed=Chloe",
+            "Livraison ultra rapide ! Le produit était super bien emballé.",
+            5
+        ),
+        Comment(
+            4,
+            1,
+            53,
+            "Thomas Bernard",
+            "https://api.dicebear.com/7.x/avataaars/png?seed=Thomas",
+            "Ça fait le job, mais les finitions pourraient être meilleures au niveau des coutures.",
+            3
+        ),
+        Comment(
+            5,
+            1,
+            54,
+            "Sarah Petit",
+            "https://api.dicebear.com/7.x/avataaars/png?seed=Sarah",
+            "J'adore ! C'est exactement ce que je cherchais depuis des mois.",
+            5
+        ),
+        Comment(
+            6,
+            6,
+            55,
+            "Lucas Morel",
+            "https://api.dicebear.com/7.x/avataaars/png?seed=Lucas",
+            "Attention, ça taille assez petit. Prenez une taille au-dessus.",
+            4
+        ),
+        Comment(
+            7,
+            4,
+            56,
+            "Emma Roux",
+            "https://api.dicebear.com/7.x/avataaars/png?seed=Emma",
+            "Le service client est top, ils ont répondu à toutes mes questions avant l'achat.",
+            5
+        ),
+        Comment(
+            8,
+            6,
+            57,
+            "Nicolas Simon",
+            "https://api.dicebear.com/7.x/avataaars/png?seed=Nicolas",
+            "Moyen. Je m'attendais à quelque chose de plus robuste.",
+            2
+        ),
+        Comment(
+            9,
+            1,
+            58,
+            "Julie Michel",
+            "https://api.dicebear.com/7.x/avataaars/png?seed=Julie",
+            "Parfait pour offrir en cadeau, la boîte est très élégante.",
+            5
+        ),
+        Comment(
+            10,
+            4,
+            59,
+            "Damien Lefebvre",
+            "https://api.dicebear.com/7.x/avataaars/png?seed=Damien",
+            "Rapport qualité-prix correct, sans plus.",
+            3
+        )
+    ) //Mock de la BDD
 
 
     suspend fun loadCatalogue(): DataState<Unit> {
@@ -36,7 +130,7 @@ class CatalogueRepository @Inject constructor(private val catalogueApi: Catalogu
 
     fun getCatalogue(): Flow<List<Product>> = _catalogueFlow.asStateFlow()
 
-    fun getProduct(productId: Int): Flow<Product?>{
+    fun getProduct(productId: Int): Flow<Product?> {
         return _catalogueFlow.asStateFlow().map { products ->
             products.find { it.id == productId }
         }
@@ -61,6 +155,14 @@ class CatalogueRepository @Inject constructor(private val catalogueApi: Catalogu
                 else product
             }
         }
+    }
+
+    suspend fun getComments(productId: Int): List<Comment>  {
+        return allComments.filter { it.idProduct == productId }
+    }
+
+    suspend fun addComment(newComment: Comment) {
+        allComments.add(newComment)
     }
 
 }
