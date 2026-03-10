@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -226,6 +227,8 @@ fun LeaveComment(
     var textState by remember { mutableStateOf("") }
     var ratingState by remember { mutableIntStateOf(0) }
 
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column(modifier = modifier) {
         Row(
             modifier = Modifier.padding(top = 24.dp),
@@ -250,7 +253,7 @@ fun LeaveComment(
         OutlinedTextField(
             onValueChange = { textState = it },
             value = textState,
-            modifier = Modifier.padding(top = 20.dp),
+            modifier = Modifier.padding(top = 20.dp).fillMaxWidth(),
             placeholder = { Text("Partagez ici vos impressions sur cette pièce") }
         )
 
@@ -258,6 +261,7 @@ fun LeaveComment(
             onClick = {
                 if (textState.isNotBlank()) {
                     onCommentSubmit(textState, ratingState)
+                    keyboardController?.hide()
                     textState = ""
                     ratingState = 0
                 }
