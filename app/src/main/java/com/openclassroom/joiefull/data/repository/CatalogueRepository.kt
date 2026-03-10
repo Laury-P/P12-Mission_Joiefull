@@ -119,7 +119,15 @@ class CatalogueRepository @Inject constructor(private val catalogueApi: Catalogu
             //Get likedProduct here and then load product when API allow it
             val products = catalogueApi.getCatalogue().map { it ->
                 val product = it.toDomain()
-                product.copy(isLikedByCurrentUser = likedProductIds.contains(product.id))
+                val averageRate = allComments
+                    .filter { it.idProduct == product.id }
+                    .map { it.rate }
+                    .average()
+                    .let { if (it.isNaN()) 0.0 else it }
+                product.copy(
+                    isLikedByCurrentUser = likedProductIds.contains(product.id),
+                    rate = averageRate
+                )
             }
             _catalogueFlow.value = products
             DataState.Success(Unit)
@@ -157,12 +165,21 @@ class CatalogueRepository @Inject constructor(private val catalogueApi: Catalogu
         }
     }
 
+
     suspend fun getComments(productId: Int): List<Comment>  {
         return allComments.filter { it.idProduct == productId }
     }
 
     suspend fun addComment(newComment: Comment) {
         allComments.add(newComment)
+        _catalogueFlow.update { products ->
+            products.map { product ->
+                if (product.id == newComment.idProduct) product.copy(
+                    rate = allComments.filter { it.idProduct == product.id }.map { it.rate }.average()
+                )
+                else product
+            }
+        }
     }
 
 }

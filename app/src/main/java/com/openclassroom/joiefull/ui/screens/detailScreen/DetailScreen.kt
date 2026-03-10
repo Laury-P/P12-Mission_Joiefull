@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -63,11 +65,12 @@ fun DetailScreen(
     val product by viewModel.getProduct(productId).collectAsStateWithLifecycle()
     val currentProduct = product
 
-    LaunchedEffect(productId) { viewModel.loadComments(productId)}
+    LaunchedEffect(productId) { viewModel.loadComments(productId) }
     val commentsState by viewModel.commentsUiState.collectAsStateWithLifecycle()
     val comments = commentsState.comments
 
-    val user = User(0, "Dupont", "Mariette", "https://xsgames.co/randomusers/assets/avatars/female/9.jpg")
+    val user =
+        User(0, "Dupont", "Mariette", "https://xsgames.co/randomusers/assets/avatars/female/9.jpg")
 
     if (currentProduct == null) {
         if (!isTablet) LaunchedEffect(Unit) { navController.popBackStack() }
@@ -85,13 +88,14 @@ fun DetailScreen(
                     idComment = 0,
                     idProduct = currentProduct.id,
                     idUser = user.id,
-                    userName = user.firstname +" "+ user.name,
+                    userName = user.firstname + " " + user.name,
                     userProfilePicture = user.profilePicture,
                     comment = comment,
                     rate = rate
                 )
             )
-        }
+        },
+        isLoading = commentsState.isLoading
     )
 
 }
@@ -106,6 +110,7 @@ fun DetailContent(
     isTablet: Boolean,
     goBackClick: () -> Unit = {},
     onCommentSubmit: (String, Int) -> Unit,
+    isLoading: Boolean
 ) {
     LazyColumn(
         modifier
@@ -127,6 +132,13 @@ fun DetailContent(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 onCommentSubmit = onCommentSubmit
             )
+        }
+        if (isLoading) {
+            item {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
         }
 
         items(comments ?: emptyList()) {
@@ -206,12 +218,19 @@ fun DescriptionSection(product: Product, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LeaveComment(modifier: Modifier = Modifier, user: User, onCommentSubmit: (String,Int) -> Unit) {
+fun LeaveComment(
+    modifier: Modifier = Modifier,
+    user: User,
+    onCommentSubmit: (String, Int) -> Unit
+) {
     var textState by remember { mutableStateOf("") }
     var ratingState by remember { mutableIntStateOf(0) }
 
     Column(modifier = modifier) {
-        Row(modifier = Modifier.padding(top = 24.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(top = 24.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             AsyncImage(
                 model = user.profilePicture,
                 contentDescription = null,
@@ -229,7 +248,7 @@ fun LeaveComment(modifier: Modifier = Modifier, user: User, onCommentSubmit: (St
         }
 
         OutlinedTextField(
-            onValueChange = {textState = it},
+            onValueChange = { textState = it },
             value = textState,
             modifier = Modifier.padding(top = 20.dp),
             placeholder = { Text("Partagez ici vos impressions sur cette pièce") }
@@ -237,15 +256,16 @@ fun LeaveComment(modifier: Modifier = Modifier, user: User, onCommentSubmit: (St
 
         Button(
             onClick = {
-                if (textState.isNotBlank()){
+                if (textState.isNotBlank()) {
                     onCommentSubmit(textState, ratingState)
                     textState = ""
                     ratingState = 0
-                }},
+                }
+            },
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(top = 16.dp),
-        ){
+        ) {
             Text(text = "Envoyer")
         }
     }
@@ -256,7 +276,11 @@ fun LeaveComment(modifier: Modifier = Modifier, user: User, onCommentSubmit: (St
 @Composable
 fun CommentSection(comment: Comment, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        HorizontalDivider(Modifier.padding(vertical = 24.dp), DividerDefaults.Thickness, DividerDefaults.color)
+        HorizontalDivider(
+            Modifier.padding(vertical = 24.dp),
+            DividerDefaults.Thickness,
+            DividerDefaults.color
+        )
         Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
                 model = comment.userProfilePicture,
@@ -305,6 +329,14 @@ fun DetailContentPreview() {
     )
 
     JoiefullTheme {
-        DetailContent(product, comments = null, user = user, isTablet = false, goBackClick = {}, onCommentSubmit = { _, _ ->})
+        DetailContent(
+            product,
+            comments = null,
+            user = user,
+            isTablet = false,
+            goBackClick = {},
+            onCommentSubmit = { _, _ -> },
+            isLoading = true
+        )
     }
 }

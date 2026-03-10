@@ -13,9 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.openclassroom.joiefull.ui.theme.Orange
 
 @Composable
@@ -33,7 +31,7 @@ fun RateDisplay(rating: Double, textStyle: TextStyle) {
         )
         Spacer(modifier = Modifier.width(3.dp))
         Text(
-            text = rating.toString(),
+            text = "%.1f".format(rating),
             style = textStyle,)
     }
 }

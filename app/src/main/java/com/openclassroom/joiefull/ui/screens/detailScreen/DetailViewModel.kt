@@ -19,7 +19,7 @@ import kotlin.collections.emptyList
 @HiltViewModel
 class DetailViewModel @Inject constructor(private val repository: CatalogueRepository) : ViewModel() {
 
-    private val _commentsUiState = MutableStateFlow<CommentUiState>(CommentUiState())
+    private val _commentsUiState = MutableStateFlow(CommentUiState())
     val commentsUiState = _commentsUiState.asStateFlow()
 
     fun getProduct(productId: Int) : StateFlow<Product?> {
