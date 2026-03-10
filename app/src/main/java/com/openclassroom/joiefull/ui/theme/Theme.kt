@@ -9,6 +9,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
@@ -52,7 +53,6 @@ fun JoiefullTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
@@ -63,7 +63,6 @@ fun JoiefullTheme(
             val window = (view.context as Activity).window
             // Edge-to-edge
             WindowCompat.setDecorFitsSystemWindows(window, false)
-
             // Transparent status & navigation bar
             WindowInsetsControllerCompat(window, view).apply {
                 isAppearanceLightStatusBars = false   // icônes blanches
@@ -76,9 +75,20 @@ fun JoiefullTheme(
         if (isTablet) TabletTypography else PhoneTypography
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = typography,
-        content = content
-    )
+    val dimensions = if (isTablet) tabletDimensions else compactDimensions
+
+
+    CompositionLocalProvider(LocalAppDimensions provides dimensions) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = typography,
+            content = content
+        )
+    }
+}
+
+object JoiefullTheme {
+    val dimensions: JoieFullDimensions
+    @Composable
+    get() = LocalAppDimensions.current
 }

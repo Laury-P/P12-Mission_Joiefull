@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.openclassroom.joiefull.ui.theme.Orange
 
@@ -27,7 +28,7 @@ fun RatingBar(
     maxRating: Int = 5,
     selectedColor: Color = Orange,
     unselectedColor: Color = Color.Gray,
-    size: Int = 25,
+    size: Dp = 25.dp,
 ) {
     Row(modifier = modifier) {
         for (value in 1..maxRating) {
@@ -56,7 +57,7 @@ fun StarIcon(
     isDisplayOnly: Boolean,
     selectedColor: Color,
     unselectedColor: Color,
-    size: Int,
+    size: Dp,
     onClick: () -> Unit
 ) {
     val tint by animateColorAsState(
@@ -68,7 +69,7 @@ fun StarIcon(
         contentDescription = if (isDisplayOnly) "Noter $ratingValue sur $maxRating" else null,
         tint = tint,
         modifier = Modifier
-            .size(size.dp)
+            .size(size)
             .then(
                 if (!isDisplayOnly) {
                     Modifier.clickable(

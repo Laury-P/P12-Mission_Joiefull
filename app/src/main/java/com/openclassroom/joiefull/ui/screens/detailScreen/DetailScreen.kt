@@ -155,6 +155,7 @@ fun ProductDetail(
     isTablet: Boolean,
     goBackClick: () -> Unit
 ) {
+    val dims = JoiefullTheme.dimensions
     Column(modifier = Modifier.padding(16.dp)) {
         Box {
             val ratio = if (isTablet) 1f else 0.75f
@@ -162,7 +163,7 @@ fun ProductDetail(
                 model = product.pictureUrl,
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
                     .aspectRatio(ratio),
                 contentScale = ContentScale.Crop
@@ -175,7 +176,7 @@ fun ProductDetail(
                     contentDescription = null,
                     Modifier
                         .align(Alignment.TopStart)
-                        .padding(17.dp)
+                        .padding(dims.iconPadding)
                         .clickable(
                             true,
                             onClick = goBackClick,
@@ -188,12 +189,12 @@ fun ProductDetail(
                 contentDescription = null,
                 Modifier
                     .align(Alignment.TopEnd)
-                    .padding(17.dp)
+                    .padding(dims.iconPadding)
             )
             LikesDisplay(
                 Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(11.dp),
+                    .padding(dims.iconPadding),
                 likes = product.likes,
                 isProductLikedByUser = product.isLikedByCurrentUser,
                 onLikeClick = { onLikeClick(product) },
@@ -209,12 +210,13 @@ fun ProductDetail(
 
 @Composable
 fun DescriptionSection(product: Product, modifier: Modifier = Modifier) {
-    Spacer(Modifier.height(24.dp))
+    val dims = JoiefullTheme.dimensions
+    Spacer(Modifier.height(dims.defaultBigPadding))
     DetailRows(product, modifier = modifier, textStyle = MaterialTheme.typography.titleMedium)
     Text(
         text = product.description,
         style = MaterialTheme.typography.bodyMedium,
-        modifier = modifier.padding(top = 12.dp)
+        modifier = modifier.padding(top = dims.defaultMediumPadding)
     )
 }
 
@@ -228,10 +230,12 @@ fun LeaveComment(
     var ratingState by remember { mutableIntStateOf(0) }
 
     val keyboardController = LocalSoftwareKeyboardController.current
+    val dims = JoiefullTheme.dimensions
+
 
     Column(modifier = modifier) {
         Row(
-            modifier = Modifier.padding(top = 24.dp),
+            modifier = Modifier.padding(top = dims.defaultBigPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
@@ -239,21 +243,22 @@ fun LeaveComment(
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .padding(end = 16.dp)
+                    .padding(end = dims.iconPadding)
                     .clip(shape = CircleShape)
-                    .size(40.dp)
+                    .size(dims.profilePictureSize)
             )
 
             RatingBar(
                 rating = ratingState,
                 onRatingChange = { ratingState = it },
+                size = dims.starSizeRating,
             )
         }
 
         OutlinedTextField(
             onValueChange = { textState = it },
             value = textState,
-            modifier = Modifier.padding(top = 20.dp).fillMaxWidth(),
+            modifier = Modifier.padding(top = dims.doublePadding).fillMaxWidth(),
             placeholder = { Text("Partagez ici vos impressions sur cette pièce") }
         )
 
@@ -268,7 +273,7 @@ fun LeaveComment(
             },
             modifier = Modifier
                 .align(Alignment.End)
-                .padding(top = 16.dp),
+                .padding(top = dims.doublePadding),
         ) {
             Text(text = "Envoyer")
         }
@@ -279,9 +284,10 @@ fun LeaveComment(
 
 @Composable
 fun CommentSection(comment: Comment, modifier: Modifier = Modifier) {
+    val dims = JoiefullTheme.dimensions
     Column(modifier = modifier) {
         HorizontalDivider(
-            Modifier.padding(vertical = 24.dp),
+            Modifier.padding(vertical = dims.doublePadding),
             DividerDefaults.Thickness,
             DividerDefaults.color
         )
@@ -291,9 +297,9 @@ fun CommentSection(comment: Comment, modifier: Modifier = Modifier) {
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .padding(end = 16.dp)
+                    .padding(end = dims.iconPadding)
                     .clip(shape = CircleShape)
-                    .size(40.dp)
+                    .size(dims.profilePictureSize)
 
             )
             Column(modifier = Modifier) {
@@ -304,7 +310,7 @@ fun CommentSection(comment: Comment, modifier: Modifier = Modifier) {
         Text(
             text = comment.comment,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(top = 12.dp)
+            modifier = Modifier.padding(top = dims.defaultMediumPadding)
         )
     }
 
