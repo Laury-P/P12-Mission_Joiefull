@@ -6,16 +6,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalConfiguration
 import com.openclassroom.joiefull.ui.theme.JoiefullTheme
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.window.core.layout.WindowSizeClass
 import com.openclassroom.joiefull.ui.screens.CatalogueContainer
 import com.openclassroom.joiefull.ui.screens.ScreenRoutes
 import com.openclassroom.joiefull.ui.screens.detailScreen.DetailScreen
@@ -36,15 +37,14 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             val navController = rememberNavController()
-            val configuration = LocalConfiguration.current
-            val isTablet = configuration.screenWidthDp >= 600
+            val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+            val isTablet = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
 
             JoiefullTheme (isTablet = isTablet) {
                 JoiefullNavHost(navController = navController, isTablet = isTablet)
             }
         }
     }
-
 
 }
 
