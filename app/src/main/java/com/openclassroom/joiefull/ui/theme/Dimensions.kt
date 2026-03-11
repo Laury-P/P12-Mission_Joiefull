@@ -22,8 +22,15 @@ data class JoieFullDimensions(
     /** Padding des icons de navigations dans la photo dans Detail et pour la photo de profil */
     val iconPadding: Dp,
 
+    val screenPadding: Dp,
+
     val profilePictureSize: Dp,
     val starSizeRating: Dp,
+    val productCardWidth: Dp,
+
+    val detailScreenImageRatio: Float,
+    val catalogueScreenImageRatio: Float,
+    val roundedCornerShape: Dp,
     )
 
 val compactDimensions = JoieFullDimensions(
@@ -33,8 +40,13 @@ val compactDimensions = JoieFullDimensions(
     smallPadding = 8.dp,
     doublePadding = 16.dp,
     iconPadding = 16.dp,
+    screenPadding = 16.dp,
     profilePictureSize =39.dp,
-    starSizeRating = 25.dp
+    starSizeRating = 25.dp,
+    productCardWidth = 198.dp,
+    detailScreenImageRatio = 0.75f,
+    catalogueScreenImageRatio = 1f,
+    roundedCornerShape = 16.dp,
 )
 
 val tabletDimensions = JoieFullDimensions(
@@ -44,8 +56,13 @@ val tabletDimensions = JoieFullDimensions(
     smallPadding = 12.dp,
     doublePadding = 24.dp,
     iconPadding = 20.dp,
+    screenPadding = 32.dp,
     profilePictureSize = 43.dp,
-    starSizeRating = 30.dp
+    starSizeRating = 30.dp,
+    productCardWidth = 234.dp,
+    detailScreenImageRatio = 1f,
+    catalogueScreenImageRatio = 0.9f,
+    roundedCornerShape = 16.dp,
 )
 
 val LocalAppDimensions = staticCompositionLocalOf { compactDimensions }

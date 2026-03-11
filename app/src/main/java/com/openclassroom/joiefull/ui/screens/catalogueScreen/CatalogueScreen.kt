@@ -6,10 +6,11 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,7 +31,6 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -52,11 +52,14 @@ fun CatalogueScreen(
 ) {
 
     val catalogue by viewModel.catalogue.collectAsStateWithLifecycle()
+    val dims = JoiefullTheme.dimensions
+
 
     LazyColumn (modifier = modifier
         .fillMaxSize()
         .statusBarsPadding()
         .navigationBarsPadding()
+        .padding(start = dims.screenPadding)
     ) {
         catalogue.forEach { (category, products) ->
             item {
@@ -64,13 +67,13 @@ fun CatalogueScreen(
                     text = category,
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier
-                        .padding(8.dp)
+                        .padding(vertical = dims.smallPadding)
                         .semantics{heading()}
                         .focusable()
                 )
             }
             item {
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(dims.defaultSmallPadding)) {
                     products.forEach { product ->
                         item {
                             ProductCard(
@@ -88,10 +91,11 @@ fun CatalogueScreen(
 
 @Composable
 fun ProductCard(modifier: Modifier = Modifier, product: Product, onProductClick: (Product) -> Unit = {}, onLikeClick: (Product) -> Unit) {
+    val dims = JoiefullTheme.dimensions
     Column(
         verticalArrangement = Arrangement.Top,
         modifier = modifier
-            .width(198.dp)
+            .width(dims.productCardWidth)
             .clickable(enabled = true, onClick = {onProductClick(product)}, onClickLabel = "Voir le détail du produit")
             .clearAndSetSemantics {
                 contentDescription = buildString {
@@ -121,28 +125,29 @@ fun ProductCard(modifier: Modifier = Modifier, product: Product, onProductClick:
     ) {
         Box(
             modifier = Modifier
-                .size(198.dp)
+                .fillMaxWidth()
         ) {
             AsyncImage(
                 model = product.pictureUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(16.dp)),
+                    .clip(RoundedCornerShape(dims.roundedCornerShape))
+                    .aspectRatio(dims.catalogueScreenImageRatio),
                 contentScale = ContentScale.Crop,
             )
 
             LikesDisplay(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(11.dp),
+                    .padding(dims.iconPadding),
                 likes = product.likes,
                 isProductLikedByUser = product.isLikedByCurrentUser,
                 onLikeClick = { onLikeClick(product) },
                 textStyle = MaterialTheme.typography.labelSmall
             )
         }
-        DetailRows(product, modifier = Modifier.padding(horizontal = 8.dp), textStyle = MaterialTheme.typography.labelLarge)
+        DetailRows(product, modifier = Modifier.padding(horizontal = dims.defaultSmallPadding), textStyle = MaterialTheme.typography.labelLarge)
 
     }
 }

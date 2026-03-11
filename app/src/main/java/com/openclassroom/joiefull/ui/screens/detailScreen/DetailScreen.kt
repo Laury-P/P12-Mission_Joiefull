@@ -41,7 +41,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -73,10 +72,12 @@ fun DetailScreen(
     val user =
         User(0, "Dupont", "Mariette", "https://xsgames.co/randomusers/assets/avatars/female/9.jpg")
 
+    val dims = JoiefullTheme.dimensions
+
     if (currentProduct == null) {
         if (!isTablet) LaunchedEffect(Unit) { navController.popBackStack() }
     } else DetailContent(
-        modifier = modifier,
+        modifier = modifier.padding(horizontal = dims.screenPadding),
         product = currentProduct,
         user = user,
         comments = comments,
@@ -130,7 +131,7 @@ fun DetailContent(
         item {
             LeaveComment(
                 user = user,
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier,
                 onCommentSubmit = onCommentSubmit
             )
         }
@@ -143,7 +144,7 @@ fun DetailContent(
         }
 
         items(comments ?: emptyList()) {
-            CommentSection(comment = it, modifier = Modifier.padding(horizontal = 16.dp))
+            CommentSection(comment = it, modifier = Modifier)
         }
     }
 }
@@ -156,16 +157,15 @@ fun ProductDetail(
     goBackClick: () -> Unit
 ) {
     val dims = JoiefullTheme.dimensions
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier) {
         Box {
-            val ratio = if (isTablet) 1f else 0.75f
             AsyncImage(
                 model = product.pictureUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .aspectRatio(ratio),
+                    .clip(RoundedCornerShape(dims.roundedCornerShape))
+                    .aspectRatio(dims.detailScreenImageRatio),
                 contentScale = ContentScale.Crop
 
 
