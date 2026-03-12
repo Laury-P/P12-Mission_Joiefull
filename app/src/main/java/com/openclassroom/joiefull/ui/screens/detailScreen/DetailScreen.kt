@@ -1,5 +1,7 @@
 package com.openclassroom.joiefull.ui.screens.detailScreen
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DividerDefaults
@@ -28,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -74,6 +79,8 @@ fun DetailScreen(
 
     val dims = JoiefullTheme.dimensions
 
+    val showShareDialog = remember { mutableStateOf(false) }
+
     if (currentProduct == null) {
         if (!isTablet) LaunchedEffect(Unit) { navController.popBackStack() }
     } else DetailContent(
@@ -97,10 +104,64 @@ fun DetailScreen(
                 )
             )
         },
-        isLoading = commentsState.isLoading
+        isLoading = commentsState.isLoading,
+        onShareClick = { showShareDialog.value = true }
     )
 
+    if(showShareDialog.value){
+        val userComment = remember { mutableStateOf("") }
+        val context = LocalContext.current
+
+        AlertDialog(
+            onDismissRequest = { showShareDialog.value = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        shareProduct(context = context,product, userComment.value)
+                        showShareDialog.value = false
+                    },
+                    content = {
+                        Text("Partager")
+                    }
+                )
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showShareDialog.value = false },
+                    content = {
+                        Text("Annuler")
+                    }
+                )
+            },
+            title = {
+                Text("Partager ce produit")
+            },
+            text = {
+                OutlinedTextField(
+                    value = userComment.value,
+                    onValueChange = {userComment.value = it},
+                    label = { Text("Ajouter un commentaire") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        )
+    }
 }
+
+fun shareProduct(context: Context, product: Product?, comment: String) {
+    if (product == null) return
+    val deepLink = "joiefull://details/${product.id}"
+
+    val sendIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, "$comment\n\nVoir le produit : $deepLink")
+        type = "text/plain"
+    }
+    
+    val shareIntent = Intent.createChooser(sendIntent, product.name)
+    context.startActivity(shareIntent)
+}
+
 
 @Composable
 fun DetailContent(
@@ -112,7 +173,8 @@ fun DetailContent(
     isTablet: Boolean,
     goBackClick: () -> Unit = {},
     onCommentSubmit: (String, Int) -> Unit,
-    isLoading: Boolean
+    isLoading: Boolean,
+    onShareClick: () -> Unit
 ) {
     LazyColumn(
         modifier
@@ -125,7 +187,8 @@ fun DetailContent(
                 product,
                 onLikeClick = { onLikeClick(product) },
                 isTablet = isTablet,
-                goBackClick = goBackClick
+                goBackClick = goBackClick,
+                onShareClick = onShareClick,
             )
         }
         item {
@@ -154,7 +217,8 @@ fun ProductDetail(
     product: Product,
     onLikeClick: (Product) -> Unit,
     isTablet: Boolean,
-    goBackClick: () -> Unit
+    goBackClick: () -> Unit,
+    onShareClick: () -> Unit
 ) {
     val dims = JoiefullTheme.dimensions
     Column(modifier = Modifier) {
@@ -190,6 +254,12 @@ fun ProductDetail(
                 Modifier
                     .align(Alignment.TopEnd)
                     .padding(dims.iconPadding)
+                    .clickable(
+                        true,
+                        onClick = onShareClick,
+                        onClickLabel = "Partager ce produit"
+                    )
+
             )
             LikesDisplay(
                 Modifier
@@ -316,6 +386,8 @@ fun CommentSection(comment: Comment, modifier: Modifier = Modifier) {
 
 }
 
+
+
 @Preview(showBackground = true)
 @Composable
 fun DetailContentPreview() {
@@ -346,7 +418,8 @@ fun DetailContentPreview() {
             isTablet = false,
             goBackClick = {},
             onCommentSubmit = { _, _ -> },
-            isLoading = true
+            isLoading = true,
+            onShareClick = {}
         )
     }
 }
