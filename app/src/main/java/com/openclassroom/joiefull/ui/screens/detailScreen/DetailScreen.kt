@@ -45,6 +45,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -108,7 +116,7 @@ fun DetailScreen(
         onShareClick = { showShareDialog.value = true }
     )
 
-    if(showShareDialog.value){
+    if (showShareDialog.value) {
         val userComment = remember { mutableStateOf("") }
         val context = LocalContext.current
 
@@ -117,7 +125,7 @@ fun DetailScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        shareProduct(context = context,product, userComment.value)
+                        shareProduct(context = context, product, userComment.value)
                         showShareDialog.value = false
                     },
                     content = {
@@ -139,7 +147,7 @@ fun DetailScreen(
             text = {
                 OutlinedTextField(
                     value = userComment.value,
-                    onValueChange = {userComment.value = it},
+                    onValueChange = { userComment.value = it },
                     label = { Text("Ajouter un commentaire") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -157,7 +165,7 @@ fun shareProduct(context: Context, product: Product?, comment: String) {
         putExtra(Intent.EXTRA_TEXT, "$comment\n\nVoir le produit : $deepLink")
         type = "text/plain"
     }
-    
+
     val shareIntent = Intent.createChooser(sendIntent, product.name)
     context.startActivity(shareIntent)
 }
@@ -201,7 +209,7 @@ fun DetailContent(
         if (isLoading) {
             item {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(modifier = Modifier.semantics{contentDescription = "Chargement des commentaires"})
                 }
             }
         }
@@ -222,7 +230,35 @@ fun ProductDetail(
 ) {
     val dims = JoiefullTheme.dimensions
     Column(modifier = Modifier) {
-        Box {
+        Box(modifier = Modifier.semantics(mergeDescendants = true) {
+            contentDescription = buildString {
+                append(product.description)
+                append(". ${product.likes} mentions j'aime. ${if (product.isLikedByCurrentUser) "J'aime déjà" else "Pas encore aimer"}")
+            }
+            customActions = listOf(
+                CustomAccessibilityAction(
+                    label = if (product.isLikedByCurrentUser) "Retirer des likes" else "Ajouter aux likes",
+                    action = {
+                        onLikeClick(product)
+                        true
+                    }
+                ),
+                CustomAccessibilityAction(
+                    label = "Partager ce produit",
+                    action = {
+                        onShareClick()
+                        true
+                    }
+                ),
+                CustomAccessibilityAction(
+                    label = "Retour à la liste des produits",
+                    action = {
+                        goBackClick()
+                        true
+                    }
+                )
+            )
+        }) {
             AsyncImage(
                 model = product.pictureUrl,
                 contentDescription = null,
@@ -237,7 +273,7 @@ fun ProductDetail(
             if (!isTablet) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = null,
+                    contentDescription = "Flèche retour",
                     Modifier
                         .align(Alignment.TopStart)
                         .padding(dims.iconPadding)
@@ -245,12 +281,12 @@ fun ProductDetail(
                             true,
                             onClick = goBackClick,
                             onClickLabel = "Retour à la liste des produits"
-                        )
+                        ).semantics{role = Role.Button}
                 )
             }
             Icon(
                 imageVector = Icons.Filled.Share,
-                contentDescription = null,
+                contentDescription = "Partager",
                 Modifier
                     .align(Alignment.TopEnd)
                     .padding(dims.iconPadding)
@@ -259,6 +295,8 @@ fun ProductDetail(
                         onClick = onShareClick,
                         onClickLabel = "Partager ce produit"
                     )
+                    .semantics{role = Role.Button}
+
 
             )
             LikesDisplay(
@@ -281,13 +319,23 @@ fun ProductDetail(
 @Composable
 fun DescriptionSection(product: Product, modifier: Modifier = Modifier) {
     val dims = JoiefullTheme.dimensions
-    Spacer(Modifier.height(dims.defaultBigPadding))
-    DetailRows(product, modifier = modifier, textStyle = MaterialTheme.typography.titleMedium)
-    Text(
-        text = product.description,
-        style = MaterialTheme.typography.bodyMedium,
-        modifier = modifier.padding(top = dims.defaultMediumPadding)
-    )
+    Column(modifier = modifier.clearAndSetSemantics {
+        contentDescription = buildString {
+            append(product.name)
+            if (product.rate != null) append("Noté ${product.rate} étoiles,")
+            append(", ${product.currentPrice} euros")
+            if (product.originalPrice != product.currentPrice) append(", en reduction. Prix original: ${product.originalPrice}€")
+        }
+    }) {
+        Spacer(Modifier.height(dims.defaultBigPadding))
+        DetailRows(product, modifier = modifier, textStyle = MaterialTheme.typography.titleMedium)
+        Text(
+            text = product.description,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = modifier.padding(top = dims.defaultMediumPadding)
+        )
+    }
+
 }
 
 @Composable
@@ -316,6 +364,9 @@ fun LeaveComment(
                     .padding(end = dims.iconPadding)
                     .clip(shape = CircleShape)
                     .size(dims.profilePictureSize)
+                    .semantics {
+                        contentDescription = "Photo de profil de ${user.firstname} ${user.name}"
+                    }
             )
 
             RatingBar(
@@ -328,7 +379,9 @@ fun LeaveComment(
         OutlinedTextField(
             onValueChange = { textState = it },
             value = textState,
-            modifier = Modifier.padding(top = dims.doublePadding).fillMaxWidth(),
+            modifier = Modifier
+                .padding(top = dims.doublePadding)
+                .fillMaxWidth(),
             placeholder = { Text("Partagez ici vos impressions sur cette pièce") }
         )
 
@@ -343,7 +396,12 @@ fun LeaveComment(
             },
             modifier = Modifier
                 .align(Alignment.End)
-                .padding(top = dims.doublePadding),
+                .padding(top = dims.doublePadding)
+                .semantics{
+                    onClick(label = "Envoyer le commentaire") {
+                        false
+                    }
+                },
         ) {
             Text(text = "Envoyer")
         }
@@ -355,7 +413,13 @@ fun LeaveComment(
 @Composable
 fun CommentSection(comment: Comment, modifier: Modifier = Modifier) {
     val dims = JoiefullTheme.dimensions
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier
+            .clearAndSetSemantics {
+                contentDescription =
+                    "Commentaire de ${comment.userName}. Note : ${comment.rate}. ${comment.comment}"
+            }
+    ) {
         HorizontalDivider(
             Modifier.padding(vertical = dims.doublePadding),
             DividerDefaults.Thickness,
@@ -374,7 +438,7 @@ fun CommentSection(comment: Comment, modifier: Modifier = Modifier) {
             )
             Column(modifier = Modifier) {
                 Text(text = comment.userName, style = MaterialTheme.typography.titleMedium)
-                RatingBar(rating = comment.rate, isDisplayOnly = true)
+                RatingBar(rating = comment.rate, isDisplayOnly = true, size = dims.starSizeRating)
             }
         }
         Text(
@@ -385,7 +449,6 @@ fun CommentSection(comment: Comment, modifier: Modifier = Modifier) {
     }
 
 }
-
 
 
 @Preview(showBackground = true)
