@@ -107,7 +107,7 @@ fun ProductCard(modifier: Modifier = Modifier, product: Product, onProductClick:
                 }
                 customActions = listOf(
                     CustomAccessibilityAction(
-                        label = "Ajouter au likes", //TODO rendre dynamique
+                        label = if(product.isLikedByCurrentUser) "Retirer des likes" else "Ajouter aux likes",
                         action = {
                             onLikeClick(product)
                             true
