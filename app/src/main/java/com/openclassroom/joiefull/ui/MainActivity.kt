@@ -30,8 +30,8 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.light(
-                scrim = Color.Transparent.toArgb(),
+            statusBarStyle = SystemBarStyle.auto(
+                lightScrim = Color.Transparent.toArgb(),
                 darkScrim = Color.Transparent.toArgb()
             )
         )

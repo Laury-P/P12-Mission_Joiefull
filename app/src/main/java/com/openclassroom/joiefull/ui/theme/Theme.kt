@@ -57,20 +57,6 @@ fun JoiefullTheme(
         else -> LightColorScheme
     }
 
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            // Edge-to-edge
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-            // Transparent status & navigation bar
-            WindowInsetsControllerCompat(window, view).apply {
-                isAppearanceLightStatusBars = false   // icônes blanches
-                isAppearanceLightNavigationBars = false
-            }
-        }
-    }
-
     val typography = remember(isTablet) {
         if (isTablet) TabletTypography else PhoneTypography
     }
