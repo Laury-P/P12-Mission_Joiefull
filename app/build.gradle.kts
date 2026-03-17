@@ -3,19 +3,19 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt.android) //Pour Hilt
     alias(libs.plugins.ksp)
-
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.openclassroom.joiefull"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.openclassroom.joiefull"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -33,11 +33,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -64,10 +64,16 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.preview)
+    implementation(libs.androidx.ui.text)
+    implementation(libs.androidx.material3.window.size.class1)
+    implementation(libs.androidx.adaptive)
+    debugImplementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
     implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
     implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.compose.material.icons.extended)
+    implementation(libs.core.splashscreen)
 
     // HILT
     implementation(libs.hilt.android)
@@ -82,9 +88,9 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
 
-    // IMAGES (Glide)
-    implementation(libs.glide)
-    annotationProcessor(libs.glide.compiler)
+    // IMAGES (Coil)
+    implementation(libs.coil.compose)
+
 
     // TESTS
     testImplementation(libs.junit)
