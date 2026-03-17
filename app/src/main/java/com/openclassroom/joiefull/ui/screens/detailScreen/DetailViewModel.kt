@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.openclassroom.joiefull.data.repository.CatalogueRepository
 import com.openclassroom.joiefull.domain.Comment
 import com.openclassroom.joiefull.domain.Product
+import com.openclassroom.joiefull.util.DataState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,12 +18,22 @@ import javax.inject.Inject
 import kotlin.collections.emptyList
 
 @HiltViewModel
-class DetailViewModel @Inject constructor(private val repository: CatalogueRepository) : ViewModel() {
+class DetailViewModel @Inject constructor(private val repository: CatalogueRepository) :
+    ViewModel() {
 
-    private val _commentsUiState = MutableStateFlow(CommentUiState())
-    val commentsUiState = _commentsUiState.asStateFlow()
+    init {
+        viewModelScope.launch {
+            repository.loadCatalogue()
+        }
+    }
 
-    fun getProduct(productId: Int) : StateFlow<Product?> {
+    val isCatalogueReady: StateFlow<DataState<Unit>> =
+        repository.catalogueState as StateFlow<DataState<Unit>>
+
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState = _uiState.asStateFlow()
+
+    fun getProduct(productId: Int): StateFlow<Product?> {
         return repository.getProduct(productId)
             .stateIn(
                 viewModelScope,
@@ -35,11 +46,11 @@ class DetailViewModel @Inject constructor(private val repository: CatalogueRepos
         repository.toggleLike(product.id)
     }
 
-    fun loadComments (productId: Int) {
+    fun loadComments(productId: Int) {
         viewModelScope.launch {
-            _commentsUiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true) }
             val comments = repository.getComments(productId)
-            _commentsUiState.update { it.copy(comments = comments.reversed(), isLoading = false) }
+            _uiState.update { it.copy(comments = comments.reversed(), isLoading = false) }
         }
     }
 
@@ -53,10 +64,10 @@ class DetailViewModel @Inject constructor(private val repository: CatalogueRepos
 
 }
 
-data class CommentUiState(
+data class UiState(
     val comments: List<Comment> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
 )
 
 

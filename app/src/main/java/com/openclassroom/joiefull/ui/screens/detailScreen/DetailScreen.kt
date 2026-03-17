@@ -2,6 +2,8 @@ package com.openclassroom.joiefull.ui.screens.detailScreen
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,6 +67,7 @@ import com.openclassroom.joiefull.ui.composable_item.DetailRows
 import com.openclassroom.joiefull.ui.composable_item.LikesDisplay
 import com.openclassroom.joiefull.ui.composable_item.RatingBar
 import com.openclassroom.joiefull.ui.theme.JoiefullTheme
+import com.openclassroom.joiefull.util.DataState
 
 @Composable
 fun DetailScreen(
@@ -74,47 +77,84 @@ fun DetailScreen(
     navController: NavController,
     isTablet: Boolean
 ) {
-
-    val product by viewModel.getProduct(productId).collectAsStateWithLifecycle()
-    val currentProduct = product
-
-    LaunchedEffect(productId) { viewModel.loadComments(productId) }
-    val commentsState by viewModel.commentsUiState.collectAsStateWithLifecycle()
-    val comments = commentsState.comments
+    val dims = JoiefullTheme.dimensions
+    val showShareDialog = remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val user =
         User(0, "Dupont", "Mariette", "https://xsgames.co/randomusers/assets/avatars/female/9.jpg")
 
-    val dims = JoiefullTheme.dimensions
+    val loadState by viewModel.isCatalogueReady.collectAsStateWithLifecycle()
 
-    val showShareDialog = remember { mutableStateOf(false) }
+    val product by viewModel.getProduct(productId).collectAsStateWithLifecycle()
+    val currentProduct = product
 
-    if (currentProduct == null) {
-        if (!isTablet) LaunchedEffect(Unit) { navController.popBackStack() }
-    } else DetailContent(
-        modifier = modifier.padding(horizontal = dims.screenPadding),
-        product = currentProduct,
-        user = user,
-        comments = comments,
-        isTablet = isTablet,
-        goBackClick = { navController.popBackStack() },
-        onLikeClick = { viewModel.onLikeClick(currentProduct) },
-        onCommentSubmit = { comment, rate ->
-            viewModel.addComment(
-                Comment(
-                    idComment = 0,
-                    idProduct = currentProduct.id,
-                    idUser = user.id,
-                    userName = user.firstname + " " + user.name,
-                    userProfilePicture = user.profilePicture,
-                    comment = comment,
-                    rate = rate
+    when (loadState) {
+        is DataState.Error -> {
+            Log.d("DetailScreen", "Error")
+
+            LaunchedEffect(loadState) {
+                Toast.makeText(
+                    context,
+                    "Une erreur est survenue",
+                    Toast.LENGTH_SHORT
+                ).show()
+                if (!isTablet) {
+                    navController.popBackStack()
+                }
+            }
+        }
+
+        is DataState.Loading -> {
+            LoadingView()
+        }
+
+        is DataState.Success -> {
+            if (currentProduct == null) {
+                LaunchedEffect(Unit) {
+                    Toast.makeText(
+                        context,
+                        "Le produit n'existe pas",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    if (!isTablet) {
+                        navController.popBackStack()
+                    }
+                }
+            } else {
+                LaunchedEffect(productId) { viewModel.loadComments(productId) }
+
+                val commentsState by viewModel.uiState.collectAsStateWithLifecycle()
+                val comments = commentsState.comments
+
+                DetailContent(
+                    modifier = modifier.padding(horizontal = dims.screenPadding),
+                    product = currentProduct,
+                    user = user,
+                    comments = comments,
+                    isTablet = isTablet,
+                    goBackClick = { navController.popBackStack() },
+                    onLikeClick = { viewModel.onLikeClick(currentProduct) },
+                    onCommentSubmit = { comment, rate ->
+                        viewModel.addComment(
+                            Comment(
+                                idComment = 0,
+                                idProduct = currentProduct.id,
+                                idUser = user.id,
+                                userName = user.firstname + " " + user.name,
+                                userProfilePicture = user.profilePicture,
+                                comment = comment,
+                                rate = rate
+                            )
+                        )
+                    },
+                    isLoading = commentsState.isLoading,
+                    onShareClick = { showShareDialog.value = true }
                 )
-            )
-        },
-        isLoading = commentsState.isLoading,
-        onShareClick = { showShareDialog.value = true }
-    )
+            }
+        }
+    }
+
 
     if (showShareDialog.value) {
         val userComment = remember { mutableStateOf("") }
@@ -170,6 +210,12 @@ fun shareProduct(context: Context, product: Product?, comment: String) {
     context.startActivity(shareIntent)
 }
 
+@Composable
+fun LoadingView() {
+    Text("Chargement en cours...")
+    CircularProgressIndicator()
+}
+
 
 @Composable
 fun DetailContent(
@@ -209,7 +255,9 @@ fun DetailContent(
         if (isLoading) {
             item {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.semantics{contentDescription = "Chargement des commentaires"})
+                    CircularProgressIndicator(modifier = Modifier.semantics {
+                        contentDescription = "Chargement des commentaires"
+                    })
                 }
             }
         }
@@ -281,7 +329,8 @@ fun ProductDetail(
                             true,
                             onClick = goBackClick,
                             onClickLabel = "Retour à la liste des produits"
-                        ).semantics{role = Role.Button}
+                        )
+                        .semantics { role = Role.Button }
                 )
             }
             Icon(
@@ -295,7 +344,7 @@ fun ProductDetail(
                         onClick = onShareClick,
                         onClickLabel = "Partager ce produit"
                     )
-                    .semantics{role = Role.Button}
+                    .semantics { role = Role.Button }
 
 
             )
@@ -397,7 +446,7 @@ fun LeaveComment(
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(top = dims.doublePadding)
-                .semantics{
+                .semantics {
                     onClick(label = "Envoyer le commentaire") {
                         false
                     }

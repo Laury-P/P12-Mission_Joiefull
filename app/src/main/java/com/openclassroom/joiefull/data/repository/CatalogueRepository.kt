@@ -18,9 +18,13 @@ class CatalogueRepository @Inject constructor(private val catalogueApi: Catalogu
 
     private val _catalogueFlow = MutableStateFlow<List<Product>>(emptyList())
 
-    private val likedProductIds = mutableSetOf<Int>(1, 4, 9)
+    private val _catalogueState = MutableStateFlow<DataState<Unit>>(DataState.Loading)
+    val catalogueState: Flow<DataState<Unit>> = _catalogueState.asStateFlow()
 
-    private val allComments = mutableListOf<Comment>(
+
+    private val likedProductIds = mutableSetOf(1, 4, 9)
+
+    private val allComments = mutableListOf(
         Comment(
             1,
             1,
@@ -115,8 +119,13 @@ class CatalogueRepository @Inject constructor(private val catalogueApi: Catalogu
 
 
     suspend fun loadCatalogue(): DataState<Unit> {
+        if (_catalogueState.value is DataState.Success) {
+            return DataState.Success(Unit)
+        }
+
+        _catalogueState.value = DataState.Loading
+
         return try {
-            //Get likedProduct here and then load product when API allow it
             val products = catalogueApi.getCatalogue().map { it ->
                 val product = it.toDomain()
                 val averageRate = allComments
@@ -130,8 +139,10 @@ class CatalogueRepository @Inject constructor(private val catalogueApi: Catalogu
                 )
             }
             _catalogueFlow.value = products
+            _catalogueState.value = DataState.Success(Unit)
             DataState.Success(Unit)
         } catch (e: Exception) {
+            _catalogueState.value = DataState.Error(e.message ?: "Network error")
             DataState.Error(e.message ?: "Network error")
         }
     }
@@ -166,7 +177,7 @@ class CatalogueRepository @Inject constructor(private val catalogueApi: Catalogu
     }
 
 
-    suspend fun getComments(productId: Int): List<Comment>  {
+    suspend fun getComments(productId: Int): List<Comment> {
         return allComments.filter { it.idProduct == productId }
     }
 
@@ -175,7 +186,8 @@ class CatalogueRepository @Inject constructor(private val catalogueApi: Catalogu
         _catalogueFlow.update { products ->
             products.map { product ->
                 if (product.id == newComment.idProduct) product.copy(
-                    rate = allComments.filter { it.idProduct == product.id }.map { it.rate }.average()
+                    rate = allComments.filter { it.idProduct == product.id }.map { it.rate }
+                        .average()
                 )
                 else product
             }

@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.openclassroom.joiefull.domain.Product
 import com.openclassroom.joiefull.ui.screens.catalogueScreen.CatalogueScreen
 import com.openclassroom.joiefull.ui.screens.detailScreen.DetailScreen
 import com.openclassroom.joiefull.ui.theme.JoiefullTheme
@@ -32,24 +32,31 @@ import com.openclassroom.joiefull.ui.theme.JoiefullTheme
 @Composable
 fun CatalogueContainer(
     navController: NavController,
-    isTablet: Boolean
+    isTablet: Boolean,
+    preselectedProductId: Int? = null,
 ) {
-    var selectedProduct by remember { mutableStateOf<Product?>(null) }
+    var selectedProductId: Int? by remember { mutableStateOf(preselectedProductId) }
+
+    LaunchedEffect(preselectedProductId) {
+        if (preselectedProductId != null && selectedProductId != -1) {
+            selectedProductId = preselectedProductId
+        }
+    }
 
     if (isTablet) {
         Row(Modifier.fillMaxSize()) {
             CatalogueScreen(
                 navController = navController,
-                onProductClick = { product -> selectedProduct = product },
+                onProductClick = { product -> selectedProductId = product.id },
                 modifier = Modifier
                     .weight(0.6f)
             )
 
-            selectedProduct?.let { product ->
+            selectedProductId?.let { id ->
                 DetailScreen(
                     modifier = Modifier
                         .weight(0.4f),
-                    productId = product.id,
+                    productId = id,
                     navController = navController,
                     isTablet = isTablet
                 )
@@ -61,7 +68,8 @@ fun CatalogueContainer(
         CatalogueScreen(
             navController = navController,
             onProductClick = { product ->
-            navController.navigate("detail_screen/${product.id}") },
+                navController.navigate("detail_screen/${product.id}")
+            },
             modifier = Modifier
         )
     }
@@ -81,7 +89,7 @@ fun DetailPlaceholder(modifier: Modifier = Modifier) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
-                imageVector = Icons.Default.ShoppingCart, // Ou une icône de vêtement
+                imageVector = Icons.Default.ShoppingCart,
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)

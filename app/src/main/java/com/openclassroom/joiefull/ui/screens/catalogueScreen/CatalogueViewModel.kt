@@ -9,12 +9,19 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CatalogueViewModel @Inject constructor(
     private val repository: CatalogueRepository
 ) : ViewModel() {
+
+    init {
+        viewModelScope.launch {
+            repository.loadCatalogue()
+        }
+    }
 
     val catalogue: StateFlow<Map<String, List<Product>>> = repository.getCatalogue()
         .map { products ->
