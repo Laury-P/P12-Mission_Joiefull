@@ -2,17 +2,20 @@ package com.openclassroom.joiefull.ui.screens.splashScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,7 +27,7 @@ import com.openclassroom.joiefull.ui.theme.Orange
 
 
 @Composable
-fun SplashScreen(navController: NavController, viewModel: SplashViewModel = hiltViewModel()) {
+fun SplashScreen(navController: NavController, viewModel: SplashViewModel = hiltViewModel(), isTablet: Boolean) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -38,35 +41,46 @@ fun SplashScreen(navController: NavController, viewModel: SplashViewModel = hilt
     when (state) {
         SplashUiState.Ready -> {}
         SplashUiState.Loading -> {
-            SplashContent()
+            SplashContent(isTablet = isTablet)
         }
 
         is SplashUiState.Error -> {
-            Text(text = "Erreur")
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White),
+                contentAlignment = Alignment.Center){
+                Text(
+                    text = "Erreur : ${(state as SplashUiState.Error).message}",
+                    color = Color.Black,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(24.dp),
+                )
+            }
+
+
         }
     }
 }
 
 
 @Composable
-fun SplashContent() {
-    BoxWithConstraints(
+fun SplashContent(isTablet: Boolean) {
+    Box(
         modifier = Modifier
             .background(Orange)
             .fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         // Adaptation de la taille du logo par rapport à la taille de l'écran
-        val logoFraction = if (maxWidth < 600.dp) 0.5f else 0.3f
-        val logoWidth = (maxWidth * logoFraction)
-        val logoHeight = logoWidth / 4f
+        val logoFraction = if (isTablet) 0.5f else 0.3f
 
         Image(
             painter = painterResource(id = R.drawable.ic_app_name),
             contentDescription = null,
             modifier = Modifier
-                .width(logoWidth)
-                .height(logoHeight)
+                .fillMaxWidth(logoFraction)
+                .aspectRatio(4f)
         )
 
     }
@@ -77,6 +91,6 @@ fun SplashContent() {
 @Composable
 fun SplashScreenPreview() {
     JoiefullTheme {
-        SplashContent()
+        SplashContent(isTablet = false)
     }
 }

@@ -65,12 +65,14 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.preview)
     implementation(libs.androidx.ui.text)
+    implementation(libs.androidx.material3.window.size.class1)
+    implementation(libs.androidx.adaptive)
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
     implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
     implementation(libs.lifecycle.viewmodel.compose)
-
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.core.splashscreen)
 
     // HILT
