@@ -30,8 +30,8 @@ class DetailViewModel @Inject constructor(private val repository: CatalogueRepos
     val isCatalogueReady: StateFlow<DataState<Unit>> =
         repository.catalogueState as StateFlow<DataState<Unit>>
 
-    private val _uiState = MutableStateFlow(UiState())
-    val uiState = _uiState.asStateFlow()
+    private val _commentUiState = MutableStateFlow(CommentsUiState())
+    val commentUiState = _commentUiState.asStateFlow()
 
     fun getProduct(productId: Int): StateFlow<Product?> {
         return repository.getProduct(productId)
@@ -48,9 +48,9 @@ class DetailViewModel @Inject constructor(private val repository: CatalogueRepos
 
     fun loadComments(productId: Int) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _commentUiState.update { it.copy(isLoading = true) }
             val comments = repository.getComments(productId)
-            _uiState.update { it.copy(comments = comments.reversed(), isLoading = false) }
+            _commentUiState.update { it.copy(comments = comments.reversed(), isLoading = false) }
         }
     }
 
@@ -64,7 +64,7 @@ class DetailViewModel @Inject constructor(private val repository: CatalogueRepos
 
 }
 
-data class UiState(
+data class CommentsUiState(
     val comments: List<Comment> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,

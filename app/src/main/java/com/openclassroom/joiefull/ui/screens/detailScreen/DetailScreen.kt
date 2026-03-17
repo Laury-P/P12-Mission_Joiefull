@@ -124,7 +124,7 @@ fun DetailScreen(
             } else {
                 LaunchedEffect(productId) { viewModel.loadComments(productId) }
 
-                val commentsState by viewModel.uiState.collectAsStateWithLifecycle()
+                val commentsState by viewModel.commentUiState.collectAsStateWithLifecycle()
                 val comments = commentsState.comments
 
                 DetailContent(
